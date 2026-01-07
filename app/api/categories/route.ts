@@ -1,23 +1,23 @@
 import { NextResponse } from "next/server";
+import { connectDB } from "@/lib/mongo";
+import Category from "@/models/Category";
 
-import { prisma } from "@/lib/prisma";
-
-// GET /api/categories
 export async function GET() {
-  const categories = await prisma.category.findMany();
+  await connectDB();
+  const categories = await Category.find();
   return NextResponse.json(categories);
 }
 
-// POST /api/categories
 export async function POST(req: Request) {
+  await connectDB();
   const body = await req.json();
 
-  if (!body.name) {
+  if (!body.name)
     return NextResponse.json({ error: "Name is required" }, { status: 400 });
-  }
 
-  const cat = await prisma.category.create({
-    data: { name: body.name, description: body.description ?? "" }
+  const cat = await Category.create({
+    name: body.name,
+    description: body.description ?? ""
   });
 
   return NextResponse.json(cat, { status: 201 });
